@@ -57,7 +57,7 @@ class UNet(nn.Module):
 
         # Bottleneck
         bottleneck = self.bottleneck(nn.MaxPool2d(2)(enc4))
-
+ 
         # Decoder
         dec4 = torch.cat((self.upconv4(bottleneck), enc4), dim=1)
         dec4 = self.dec4(dec4)
@@ -72,4 +72,4 @@ class UNet(nn.Module):
         output = self.final_conv(dec1)
 
         # Crop back to original size
-        return output[:, :, :orig_height, :orig_width]
+        return output
