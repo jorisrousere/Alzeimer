@@ -51,35 +51,58 @@ def create_legend():
     legend_np = np.array(legend_image)
     return legend_np
 
-
 def validate(model, val_loader, criterion, device, num_classes):
     model.eval()
     running_loss = 0.0
+    total_correct = 0
+    total_pixels = 0
+
+    # Per-class metrics
+    class_correct = np.zeros(num_classes, dtype=np.int64)
+    class_total = np.zeros(num_classes, dtype=np.int64)
+
     predictions, ground_truths = [], []
 
     with torch.no_grad():
+        i = 0
         for scans, masks in tqdm(val_loader, desc="Validation"):
             scans, masks = scans.to(device), masks.to(device)
             outputs = model(scans)
             loss = criterion(outputs, masks)
             running_loss += loss.item()
 
-            preds = torch.argmax(outputs, dim=1).cpu().numpy()
-            masks = masks.cpu().numpy()
+            preds = torch.argmax(outputs, dim=1)
 
-            predictions.extend(preds)
-            ground_truths.extend(masks)
+            # Update total correct and total pixels
+            total_correct += (preds == masks).sum().item()
+            total_pixels += masks.numel()
+
+            # Update per-class correct and total
+            for class_idx in range(num_classes):
+                class_correct[class_idx] += ((preds == class_idx) & (masks == class_idx)).sum().item()
+                class_total[class_idx] += (masks == class_idx).sum().item()
+
+            preds_np = preds.cpu().numpy()
+            masks_np = masks.cpu().numpy()
+            if i % (len(val_loader) // 15) == 0:
+                predictions.extend(preds_np)
+                ground_truths.extend(masks_np)
+            i += 1
 
     avg_loss = running_loss / len(val_loader)
+    overall_accuracy = total_correct / total_pixels
+    class_accuracies = class_correct / np.maximum(class_total, 1)  # Avoid division by zero
 
     # Convert predictions and masks to RGB for TensorBoard visualization
-    preds_colored = [apply_colormap(predictions[i], num_classes) for i in range(0,len(predictions),len(predictions)//100)]
-    masks_colored = [apply_colormap(ground_truths[i], num_classes) for i in range(0,len(ground_truths),len(ground_truths)//100)]
+    preds_colored = [apply_colormap(predictions[i], num_classes) for i in range(len(predictions))]
+    masks_colored = [apply_colormap(ground_truths[i], num_classes) for i in range(len(ground_truths))]
 
     preds_tensor = torch.tensor(np.stack(preds_colored)).permute(0, 3, 1, 2) / 255.0
     masks_tensor = torch.tensor(np.stack(masks_colored)).permute(0, 3, 1, 2) / 255.0
 
-    return avg_loss, preds_tensor, masks_tensor
+    return avg_loss, overall_accuracy, class_accuracies, preds_tensor, masks_tensor
+
+
 
 
 def train(args):
@@ -99,7 +122,7 @@ def train(args):
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
     )
     val_loader = DataLoader(
-        val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
+        val_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
     )
 
     model = UNet(in_channels=1, out_channels=args.num_classes).to(device)
@@ -109,6 +132,10 @@ def train(args):
     for epoch in range(args.epochs):
         model.train()
         running_loss = 0.0
+
+        # Per-class metrics for training
+        class_correct_train = np.zeros(args.num_classes, dtype=np.int64)
+        class_total_train = np.zeros(args.num_classes, dtype=np.int64)
 
         for batch_idx, (scans, masks) in enumerate(
             tqdm(train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}")
@@ -123,20 +150,47 @@ def train(args):
 
             running_loss += loss.item()
 
+            # Calculate training accuracy
+            preds = torch.argmax(outputs, dim=1)
+            total_correct_train = (preds == masks).sum().item()
+            total_pixels_train = masks.numel()
+
+            # Update per-class metrics
+            for class_idx in range(args.num_classes):
+                class_correct_train[class_idx] += ((preds == class_idx) & (masks == class_idx)).sum().item()
+                class_total_train[class_idx] += (masks == class_idx).sum().item()
+
             if batch_idx % args.log_freq == 0:
                 avg_loss = running_loss / (batch_idx + 1)
                 writer.add_scalar("Loss/train", avg_loss, epoch * len(train_loader) + batch_idx)
 
         avg_train_loss = running_loss / len(train_loader)
-        writer.add_scalar("Loss/epoch_train", avg_train_loss, epoch + 1)
+        train_accuracy = total_correct_train / total_pixels_train
+        train_class_accuracies = class_correct_train / np.maximum(class_total_train, 1)
 
-        val_loss, val_preds_tensor, val_masks_tensor = validate(
+        writer.add_scalar("Loss/epoch_train", avg_train_loss, epoch + 1)
+        writer.add_scalar("Accuracy/epoch_train", train_accuracy, epoch + 1)
+
+        classes = ["Background","CN","AD","MCI stable","MCI not stable"]
+        # Log per-class training accuracies
+        for class_idx, class_acc in enumerate(train_class_accuracies):
+            writer.add_scalar(f"Accuracy/train_class_{classes[class_idx]}", class_acc, epoch + 1)
+
+
+        val_loss, val_accuracy, val_class_accuracies, val_preds_tensor, val_masks_tensor = validate(
             model, val_loader, criterion, device, args.num_classes
         )
+
         writer.add_scalar("Loss/epoch_val", val_loss, epoch + 1)
+        writer.add_scalar("Accuracy/epoch_val", val_accuracy, epoch + 1)
+
+        # Log per-class accuracies
+        for class_idx, class_acc in enumerate(val_class_accuracies):
+            writer.add_scalar(f"Accuracy/val_class_{classes[class_idx]}", class_acc, epoch + 1)
 
         writer.add_images("Validation/Predictions", val_preds_tensor, epoch + 1)
         writer.add_images("Validation/Ground Truth", val_masks_tensor, epoch + 1)
+
 
         if (epoch + 1) % args.save_freq == 0:
             checkpoint_path = os.path.join(args.save_dir, f"unet_epoch_{epoch + 1}.pth")
@@ -158,7 +212,7 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
     parser.add_argument("--num_classes", type=int, default=5, help="Number of segmentation classes")
     parser.add_argument("--num_workers", type=int, default=4, help="Number of DataLoader workers")
-    parser.add_argument("--save_freq", type=int, default=5, help="Frequency to save model checkpoints")
+    parser.add_argument("--save_freq", type=int, default=1, help="Frequency to save model checkpoints")
     parser.add_argument("--log_freq", type=int, default=25, help="Frequency to log metrics and images to TensorBoard")
 
     args = parser.parse_args()

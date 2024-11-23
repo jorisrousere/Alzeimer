@@ -99,7 +99,9 @@ class MedicalImageDataset(Dataset):
         mask_slice = np.where(mask_slice > 0, class_label, 0).astype(np.uint8)
         
         # Normalize the scan slice to [0, 1]
-        scan_slice = (scan_slice - np.min(scan_slice)) / (np.max(scan_slice) - np.min(scan_slice))
+        epsilon = 1e-8  # Small value to prevent division by zero
+        scan_slice = (scan_slice - np.min(scan_slice)) / (np.max(scan_slice) - np.min(scan_slice) + epsilon)
+
 
         # Convert slices to PyTorch tensors
         scan_tensor = torch.tensor(scan_slice, dtype=torch.float32).unsqueeze(0)  # Add channel dimension
