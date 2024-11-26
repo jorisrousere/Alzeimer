@@ -24,8 +24,16 @@ class UNet(nn.Module):
         self.upconv1 = self.upconv(128, 64)
         self.dec1 = self.conv_block(128, 64)
 
-        # Final 1x1 convolution to map to output channels
-        self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
+
+        self.conv1 = nn.Conv2d(64, 32, kernel_size=3)
+        self.conv2 = nn.Conv2d(32, 1, kernel_size=3)
+
+        self.maxpool2d = nn.MaxPool2d(2)
+        self.flatten = nn.Flatten()
+
+        self.dropout = nn.Dropout(0.3)
+        self.output =  nn.Linear(128, out_channels)
+        self.dense = nn.Linear(3844, 128)
 
     def conv_block(self, in_channels, out_channels):
         return nn.Sequential(
@@ -51,12 +59,12 @@ class UNet(nn.Module):
 
         # Encoder
         enc1 = self.enc1(x)
-        enc2 = self.enc2(nn.MaxPool2d(2)(enc1))
-        enc3 = self.enc3(nn.MaxPool2d(2)(enc2))
-        enc4 = self.enc4(nn.MaxPool2d(2)(enc3))
+        enc2 = self.enc2(self.maxpool2d(enc1))
+        enc3 = self.enc3(self.maxpool2d(enc2))
+        enc4 = self.enc4(self.maxpool2d(enc3))
 
         # Bottleneck
-        bottleneck = self.bottleneck(nn.MaxPool2d(2)(enc4))
+        bottleneck = self.bottleneck(self.maxpool2d(enc4))
  
         # Decoder
         dec4 = torch.cat((self.upconv4(bottleneck), enc4), dim=1)
@@ -68,9 +76,19 @@ class UNet(nn.Module):
         dec1 = torch.cat((self.upconv1(dec2), enc1), dim=1)
         dec1 = self.dec1(dec1)
 
-        # Final output
-        output = self.final_conv(dec1)
+        
+        x = self.conv1(dec1)
+        x = self.maxpool2d(x)
 
-        # Crop back to original size
+        x = self.conv2(x)
+        x = self.maxpool2d(x)
+
+        x = self.flatten(x)
+
+        x = self.dense(x)
+
+        x = self.dropout(x)
+
+        output = self.output(x)
+
         return output
-

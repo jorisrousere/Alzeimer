@@ -6,7 +6,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms.functional as F
 
-class MedicalImageDataset(Dataset):
+class MedicalClassDataset(Dataset):
     def __init__(self, folder_path, csv_file, target_size=(256, 256)):
         """
         Args:
@@ -36,11 +36,11 @@ class MedicalImageDataset(Dataset):
             
             # Determine the class label
             if status == "CN":
-                class_label = 1
+                class_label = 0
             elif status == "AD":
-                class_label = 2
+                class_label = 1
             elif status == "MCI":
-                class_label = 3 if mci_type == 3 else 4
+                class_label = 2 if mci_type == 3 else 3
             else:
                 continue  # Skip invalid statuses
             
@@ -88,6 +88,7 @@ class MedicalImageDataset(Dataset):
 
         return indices
 
+
     def __len__(self):
         """
         Returns the total number of slices across all planes for all scans.
@@ -99,37 +100,28 @@ class MedicalImageDataset(Dataset):
         Loads and returns a specific slice based on its global index.
         """
         scan_idx, plane, slice_idx = self.slice_indices[idx]
-        scan_file, mask_file, class_label = self.data_info[scan_idx]
+        scan_file, _, class_label = self.data_info[scan_idx]
 
         # Load scan and mask
         scan = nib.load(scan_file).get_fdata()
-        mask = nib.load(mask_file).get_fdata()
 
         # Extract slice based on plane
         if plane == "axial":
             scan_slice = scan[:, :, slice_idx]
-            mask_slice = mask[:, :, slice_idx]
         elif plane == "sagittal":
             scan_slice = scan[slice_idx, :, :]
-            mask_slice = mask[slice_idx, :, :]
         elif plane == "coronal":
             scan_slice = scan[:, slice_idx, :]
-            mask_slice = mask[:, slice_idx, :]
 
-        # Filter mask based on the class label
-        mask_slice = np.where(mask_slice > 0, class_label, 0).astype(np.uint8)
         
         # Normalize the scan slice to [0, 1]
         epsilon = 1e-8  # Small value to prevent division by zero
         scan_slice = (scan_slice - np.min(scan_slice)) / (np.max(scan_slice) - np.min(scan_slice) + epsilon)
 
-
         # Convert slices to PyTorch tensors
         scan_tensor = torch.tensor(scan_slice, dtype=torch.float32).unsqueeze(0)  # Add channel dimension
-        mask_tensor = torch.tensor(mask_slice, dtype=torch.long)  # Class label format
 
         # Resize scan and mask to the target size
         scan_tensor_resized = F.resize(scan_tensor, self.target_size)
-        mask_tensor_resized = F.resize(mask_tensor.unsqueeze(0), self.target_size, interpolation=F.InterpolationMode.NEAREST).squeeze(0)
 
-        return scan_tensor_resized, mask_tensor_resized
+        return scan_tensor_resized, class_label

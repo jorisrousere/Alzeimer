@@ -27,6 +27,7 @@ class MedicalImageDataset(Dataset):
         info_list = []
         for _, row in self.csv_file.iterrows():
             scan_id = row[0]  # ID from the CSV file
+            age = int(row[2]) 
             status = row[4]   # CN, AD, or MCI
             mci_type = row[5] # Stability of MCI (3 for stable, 4 for not stable)
 
@@ -36,17 +37,12 @@ class MedicalImageDataset(Dataset):
             
             # Determine the class label
             if status == "CN":
-                class_label = 1
-            elif status == "AD":
-                class_label = 2
-            elif status == "MCI":
-                class_label = 3 if mci_type == 3 else 4
+                class_label = age - 49
+                # Append valid scan-mask pairs
+                if os.path.exists(scan_file) and os.path.exists(mask_file):
+                    info_list.append((scan_file, mask_file, class_label))
             else:
                 continue  # Skip invalid statuses
-            
-            # Append valid scan-mask pairs
-            if os.path.exists(scan_file) and os.path.exists(mask_file):
-                info_list.append((scan_file, mask_file, class_label))
         
         return info_list
 
