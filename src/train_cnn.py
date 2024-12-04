@@ -8,7 +8,7 @@ from torchvision.transforms import Compose, ToTensor, Normalize, Resize
 from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 from data.medicalclassdataset import MedicalClassDataset
-from network.cnn_classification import SimpleCNN
+from network.cnn_classification import AlzheimerCNN
 import numpy as np
 
 def validate(model, val_loader, criterion, device, num_classes):
@@ -70,16 +70,22 @@ def train(args):
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    model = SimpleCNN(num_classes=args.num_classes).to(device)
+    model = AlzheimerCNN(num_classes=args.num_classes).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+    steps_per_epoch = args.steps_per_epoch  # Limite du nombre de batches par époque
 
     for epoch in range(args.epochs):
         model.train()
         running_loss = 0.0
         total_correct = 0
 
-        for images, labels in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}"):
+        # Itérations limitées par steps_per_epoch
+        for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}")):
+            if steps_per_epoch and batch_idx >= steps_per_epoch:
+                break
+
             images, labels = images.to(device), labels.to(device)
 
             outputs = model(images)
@@ -93,8 +99,8 @@ def train(args):
             preds = torch.argmax(outputs, dim=1)
             total_correct += (preds == labels).sum().item()
 
-        avg_train_loss = running_loss / len(train_loader)
-        train_accuracy = total_correct / len(train_loader.dataset)
+        avg_train_loss = running_loss / steps_per_epoch
+        train_accuracy = total_correct / (steps_per_epoch * args.batch_size)
 
         writer.add_scalar("Loss/train", avg_train_loss, epoch + 1)
         writer.add_scalar("Accuracy/train", train_accuracy, epoch + 1)
@@ -128,6 +134,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_classes", type=int, default=4, help="Number of classes for classification")
     parser.add_argument("--num_workers", type=int, default=4, help="Number of DataLoader workers")
     parser.add_argument("--save_freq", type=int, default=1, help="Frequency to save model checkpoints")
+    parser.add_argument("--steps_per_epoch", type=int, default=None, help="Number of batches per epoch (optional)")
 
     args = parser.parse_args()
     os.makedirs(args.save_dir, exist_ok=True)
