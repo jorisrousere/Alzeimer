@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix, accuracy_score
 import matplotlib.pyplot as plt
 from data.medicalclassdataset_valid import MedicalClassDataset  
-from rendu.Alzeimer.Approche25D.network.CNN import CNN  
+from network.CNN import CNN  
 
 def load_model(model_path, num_classes, device):
     model = CNN(in_channels=3, out_channels=num_classes).to(device)
