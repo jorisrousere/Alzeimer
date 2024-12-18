@@ -1,4 +1,4 @@
-# Approche25D
+# Approche 2.5D
 
 Ce dépôt contient une implémentation d'une approche 2.5D pour la classification d'images médicales. Le projet est organisé en modules pour le traitement des données, le développement de modèles, ainsi que les workflows d'entraînement et d'inférence.
 

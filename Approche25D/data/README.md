@@ -1,4 +1,4 @@
-# Approche25D - Dataloaders pour IRM Cérébrales
+# Approche 2.5D - Data
 
 Ce dossier contient des scripts Python pour générer des DataLoaders PyTorch permettant de classer des IRM cérébrales en vue de détecter des maladies comme Alzheimer ou les troubles cognitifs légers (MCI).
 

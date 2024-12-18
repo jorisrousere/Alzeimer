@@ -1,8 +1,4 @@
-Voici le contenu du README adapté au dossier `Approche25D/src` :
-
----
-
-# Approche25D/src
+# Approche 2.5D - Source
 
 Ce dossier contient les scripts principaux pour la gestion, l'entraînement, et l'inférence d'un modèle de classification médicale à partir de données d'IRM cérébrales. L'architecture est organisée comme suit :
 

@@ -1,4 +1,4 @@
-# README - Approche 2.5D - Network
+# Approche 2.5D - Network
 
 ## Structure du dossier
 
