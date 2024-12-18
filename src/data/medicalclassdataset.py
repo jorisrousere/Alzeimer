@@ -99,6 +99,11 @@ class MedicalClassDataset(Dataset):
         """
         Loads and returns a specific slice based on its global index.
         """
+        def __getitem__(self, idx):
+            # Mélanger dynamiquement les indices si shuffle=True
+            if hasattr(self, 'shuffle') and self.shuffle:
+                random.shuffle(self.slice_indices)
+
         scan_idx, plane, slice_idx = self.slice_indices[idx]
         scan_file, _, class_label = self.data_info[scan_idx]
 

@@ -34,7 +34,8 @@ def validate(model, val_loader, criterion, device, num_classes):
 
     avg_loss = running_loss / len(val_loader)
     overall_accuracy = total_correct / len(val_loader.dataset)
-    class_accuracies = class_correct / np.maximum(class_total, 1)  # Avoid division by zero
+    class_accuracies = class_correct / np.maximum(class_total, 1)
+
     return avg_loss, overall_accuracy, class_accuracies
 
 
@@ -47,7 +48,8 @@ def train(args):
     train_transform = Compose([
         Resize((256, 256)),
         ToTensor(),
-        Normalize(mean=[0.5], std=[0.5])
+        lambda x: x.repeat(3, 1, 1),
+        Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
 
     val_transform = Compose([
@@ -67,25 +69,26 @@ def train(args):
         target_size=(256, 256)
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    train_loader = DataLoader(
+        train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
+    )
+
+    print(f"Number of training samples: {len(train_dataset)}")
+    print(f"Number of validation samples: {len(val_dataset)}")
 
     model = AlzheimerCNN(num_classes=args.num_classes).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
-    steps_per_epoch = args.steps_per_epoch  # Limite du nombre de batches par époque
 
     for epoch in range(args.epochs):
         model.train()
         running_loss = 0.0
         total_correct = 0
 
-        # Itérations limitées par steps_per_epoch
-        for batch_idx, (images, labels) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}")):
-            if steps_per_epoch and batch_idx >= steps_per_epoch:
-                break
-
+        for images, labels in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}"):
             images, labels = images.to(device), labels.to(device)
 
             outputs = model(images)
@@ -99,13 +102,15 @@ def train(args):
             preds = torch.argmax(outputs, dim=1)
             total_correct += (preds == labels).sum().item()
 
-        avg_train_loss = running_loss / steps_per_epoch
-        train_accuracy = total_correct / (steps_per_epoch * args.batch_size)
+        avg_train_loss = running_loss / len(train_loader)
+        train_accuracy = total_correct / len(train_loader.dataset)
 
         writer.add_scalar("Loss/train", avg_train_loss, epoch + 1)
         writer.add_scalar("Accuracy/train", train_accuracy, epoch + 1)
 
-        val_loss, val_accuracy, val_class_accuracies = validate(model, val_loader, criterion, device, args.num_classes)
+        val_loss, val_accuracy, val_class_accuracies = validate(
+            model, val_loader, criterion, device, args.num_classes
+        )
 
         writer.add_scalar("Loss/val", val_loss, epoch + 1)
         writer.add_scalar("Accuracy/val", val_accuracy, epoch + 1)
@@ -134,7 +139,6 @@ if __name__ == "__main__":
     parser.add_argument("--num_classes", type=int, default=4, help="Number of classes for classification")
     parser.add_argument("--num_workers", type=int, default=4, help="Number of DataLoader workers")
     parser.add_argument("--save_freq", type=int, default=1, help="Frequency to save model checkpoints")
-    parser.add_argument("--steps_per_epoch", type=int, default=None, help="Number of batches per epoch (optional)")
 
     args = parser.parse_args()
     os.makedirs(args.save_dir, exist_ok=True)
