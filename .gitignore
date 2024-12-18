@@ -1,5 +1,0 @@
-datasets/*
-logs
-checkpoints
-*.pyc
-*.txt
