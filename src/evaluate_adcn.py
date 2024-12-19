@@ -4,8 +4,8 @@ import argparse
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from data.data_loader import PatientHippocampusDataset
-from network.binary_cnn import BinaryCNN
+from data_loader_adcn import PatientHippocampusDataset
+from model2D import BinaryCNN
 from torch.utils.data import DataLoader
 
 def calculate_weighted_average(slice_predictions, method="linear", k=5, epsilon=1e-6, threshold=0.1):

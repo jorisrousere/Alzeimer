@@ -25,8 +25,7 @@ class BinaryCNN(nn.Module):
         )
         self.flatten = nn.Flatten()
 
-        # Calcul dynamique de la taille d'entrée de fc1
-        dummy_input = torch.zeros(1, 1, 256, 256)  # Batch size de 1, taille d'entrée (256, 256)
+        dummy_input = torch.zeros(1, 1, 256, 256)
         conv_output_size = self._get_conv_output_size(dummy_input)
         self.fc1 = nn.Linear(conv_output_size, 512)
 
@@ -36,7 +35,7 @@ class BinaryCNN(nn.Module):
 
     def _get_conv_output_size(self, x):
         x = self.conv_layers(x)
-        return x.numel()  # Nombre total d'éléments dans le tenseur
+        return x.numel()
 
     def forward(self, x):
         x = self.conv_layers(x)

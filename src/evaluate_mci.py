@@ -4,8 +4,8 @@ import argparse
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from data.mci_dataloader import MCIHippocampusDataset
-from network.binary_cnn import BinaryCNN
+from data_loader_mci import MCIHippocampusDataset
+from model2D import BinaryCNN
 from torch.utils.data import DataLoader
 
 def weighted_mean(predictions, method="linear", k=5, epsilon=1e-6, threshold=0.1):
