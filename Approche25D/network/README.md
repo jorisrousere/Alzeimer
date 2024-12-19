@@ -33,7 +33,7 @@ Ce fichier implémente une architecture basée sur EfficientNet-B0, un modèle p
   - Modification de la tête de classification pour correspondre au nombre de classes souhaitées.
 - **Dropout** : Utilisé pour éviter le surapprentissage.
 - **Pré-entraînement** : Le modèle est initialisé avec les poids pré-entraînés disponibles pour EfficientNet-B0.
-- **Entrées** : Images redimensionnées automatiquement pour s'adapter à l'architecture EfficientNet (par défaut : 224x224).
+- **Entrées** : Images 2.5D avec 3 canaux (slices d'IRM).
 - **Sorties** : Deux classes (par défaut), pour distinguer les IRM "normales" des IRM présentant des signes de la maladie.
 
 ### 3. **swinTransformer.py**
