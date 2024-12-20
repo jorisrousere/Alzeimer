@@ -26,7 +26,7 @@ Ce projet propose plusieurs approches pour analyser des images IRM en utilisant 
 │   ├── src/              # Code source des modèles 2D
 │   └── README.md         # Documentation spécifique à l'approche 2D
 └── README.md             # Documentation principale du projet
-
+```
 
 
 ## Détails des Approches
