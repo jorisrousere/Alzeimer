@@ -12,6 +12,10 @@ Ce projet propose plusieurs approches pour analyser des images IRM en utilisant 
 │   ├── README.md         # Documentation spécifique à l'approche 3D
 │   ├── demo.gif          # Démonstration du fonctionnement du modèle 3D
 │   └── requirements.txt  # Liste des dépendances nécessaires pour l'approche 3D
+├── Approche3D Mixup+Finetune/
+│   ├── src/              # Code source pour les modèles 3D intégrant MixUp et fine-tuning
+│   ├── README.md         # Documentation spécifique à cette variante
+│   └── requirements.txt  # Liste des dépendances nécessaires
 ├── Approche25D/
 │   ├── data/             # Contient les données nécessaires pour l'approche 2.5D
 │   ├── network/          # Définition des architectures pour l'approche 2.5D
@@ -22,7 +26,6 @@ Ce projet propose plusieurs approches pour analyser des images IRM en utilisant 
 │   ├── src/              # Code source des modèles 2D
 │   └── README.md         # Documentation spécifique à l'approche 2D
 └── README.md             # Documentation principale du projet
-```
 
 ## Détails des Approches
 
