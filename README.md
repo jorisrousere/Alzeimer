@@ -54,7 +54,7 @@ Ce projet propose plusieurs approches pour analyser des images IRM en utilisant 
 
 1. Clonez le dépôt :
    ```bash
-   git clone https://github.com/votre-repository.git
+   git clone [https://github.com/jorisrousere/Alzeimer.git
    cd votre-repository
    ```
 2. Installez les dépendances pour chaque approche :
