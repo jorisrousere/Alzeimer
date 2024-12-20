@@ -45,9 +45,6 @@ Ce dossier regroupe les scripts pour l'entraînement, l'inférence, et les fonct
   - **`split.py`** : Permet de diviser le jeu de données en ensembles d'entraînement, de validation, et de test tout en maintenant un équilibre des classes.
 - **`README.md`** : Explique comment utiliser les scripts d'entraînement et d'inférence.
 
-### Racine du Projet
-- **`README.md`** : Présentation générale du projet, incluant les instructions d'installation et la structure globale.
-
 ## Utilisation
 1. Prétraitez les données à l'aide des scripts disponibles dans `data/`.
 2. Entraînez un modèle en utilisant `src/train.py` avec l'une des architectures définies dans `network/`.
