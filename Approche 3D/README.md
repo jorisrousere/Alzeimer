@@ -45,8 +45,6 @@ Approche3D/
 ├── requirements.txt               # Liste des dépendances Python
 └── README.md                      # Documentation du projet
 ```
-train_without_val.py
----
 
 ## 🚀 Installation
 
