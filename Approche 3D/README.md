@@ -52,12 +52,6 @@ train_without_val.py
 
 #### Étapes d'installation
 
-1. Clone ce repository :
-   ```bash
-   git clone https://github.com/ton-projet/BRAIN_MRI_CLASSIFICATION.git
-   cd BRAIN_MRI_CLASSIFICATION
-   ```
-
 2. Crée un environnement virtuel et active-le :
    ```bash
    python3 -m venv venv
