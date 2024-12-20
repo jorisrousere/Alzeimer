@@ -57,7 +57,7 @@ Ce projet propose plusieurs approches pour analyser des images IRM en utilisant 
  
 ### Approche 3D Mixup 
 - **Description :** Utilisation d'un modèle 3D avec la technique de mixup pour augmenter les données et le fine-tuning pour optimiser les performances.
-- **Emplacement :** Approche 3D Mixup+Finetune/
+- **Emplacement :** `Approche 3D Mixup+Finetune/`
 - **Contenu :**
   - `scripts/` : Code source contenant les scripts nécessaires pour l'entraînement, l'évaluation, et l'implémentation des modèles 3D.
   - requirements.txt : Liste des dépendances nécessaires pour exécuter le projet.
