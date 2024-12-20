@@ -100,7 +100,16 @@ bash scripts/run_pipeline.sh
 ```
 
 #### Résultats
-Les résultats de l'entraînement et de l'évaluation sont sauvegardés dans le répertoire **outputs**.
+Les courbes de l'entraînement et de l'évaluation sont sauvegardés dans le répertoire **outputs**.
+Les modèles ont été évalué sur le jeux de données MCI Stable/Instable. Les résultats sont résumés dans le tableau suivant :
+
+| **Architecture**         | **Accuracy (%)** | **F1-score** | **AUC** |
+|---------------------------|------------------|--------------|---------|
+| ThreeLayer3DCNN           | 62.5            | 0.66         | 0.69    |
+| FourLayer3DCNN            | 69.5            | 0.73         | 0.75    |
+| FiveLayer3DCNN            | 63.6            | 0.67         | 0.71    |
+| ResNet3D                  | 65.8            | 0.67         | 0.71    |
+| ResNet3DWithAttention     | 67.2            | 0.70         | 0.73    |
 
 ## 🎥 Démonstration vidéo
 ![Aperçu](demo.gif)
