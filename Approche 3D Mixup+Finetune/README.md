@@ -1,4 +1,3 @@
-```markdown
 # Projet de Modélisation et Entraînement de Modèles
 
 Ce projet contient plusieurs scripts Python pour l'entraînement, l'évaluation et la gestion de modèles de machine learning. Il est structuré pour permettre une utilisation flexible avec différents arguments en ligne de commande.
