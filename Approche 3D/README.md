@@ -1,4 +1,4 @@
-# BRAIN_MRI_CLASSIFICATION3D - TRAITEMENT 3D DES VOLUMES IRM
+# Approche 3D - TRAITEMENT 3D DES VOLUMES IRM
 ## 📋 Description
 Cette branche traite directement des **IRM en 3D** pour détecter des anomalies spécifiques, notamment les **hippocampes**, grâce à des réseaux de neurones 3D.  
 L'objectif est de **conserver l'intégralité des informations volumétriques** afin d'améliorer la précision des modèles par rapport aux approches 2D.  
