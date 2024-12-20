@@ -1,4 +1,3 @@
-```markdown
 # Projet : Classification des IRM avec Approches 2D, 2.5D et 3D
 
 Ce projet propose plusieurs approches pour analyser des images IRM en utilisant des architectures 2D, 2.5D et 3D afin de classifier les données MCI. Chaque approche est structurée dans un répertoire séparé pour une meilleure organisation.
