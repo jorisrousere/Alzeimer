@@ -23,7 +23,7 @@ Ce dossier contient l'approche 2D développée dans le cadre d'un projet plus la
     ├── utils/              # Outils divers
         ├── split_dataset.py # Script pour diviser les données
         └── search_grid.py  # Recherche par grille pour optimiser l'architecture
-``
+```
 ## Description des fichiers
 
 ### Datasets
