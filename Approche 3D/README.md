@@ -9,7 +9,7 @@ Les régions d'intérêt (**ROIs**) sont les **hippocampes**, extraits sous form
 ## 🗂️ Structure du projet
 
 ```plaintext
-BRAIN_MRI_CLASSIFICATION/
+Approche3D/
 │
 ├── data/                          # Contient les ensembles de données
 │   ├── Brain_dataset/             
