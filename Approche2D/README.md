@@ -3,7 +3,7 @@
 Ce dossier contient l'approche 2D développée dans le cadre d'un projet plus large visant à classifier les patients atteints d'Alzheimer (AD), cognitivement normaux (CN) et à prédire la stabilité des patients Mild Cognitive Impairment (MCI). L'approche 2D repose sur un modèle CNN prenant en entrée des coupes IRM 2D de la région de l'hippocampe.
 
 ## Structure du dossier
-
+``
 2D/
 ├── README.md               # Documentation de l'approche 2D
 ├── datasets/               # Données utilisées pour l'approche 2D
@@ -23,7 +23,7 @@ Ce dossier contient l'approche 2D développée dans le cadre d'un projet plus la
     ├── utils/              # Outils divers
         ├── split_dataset.py # Script pour diviser les données
         └── search_grid.py  # Recherche par grille pour optimiser l'architecture
-
+``
 ## Description des fichiers
 
 ### Datasets
